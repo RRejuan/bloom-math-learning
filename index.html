@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="theme-color" content="#3E9B53" />
+<title>Bloom — Math Garden</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{--cream:#FBF3E4;--paper:#FFFCF5;--ink:#3A3026;--ink-soft:#6E5E4C;--leaf:#3E9B53;--leaf-dark:#2E7D45;--apple:#E2553E;--apple-green:#8BC34A;--sun:#F6C544;--soil:#9A6238;--sky:#CDEBF7;--pink:#E26D9E;--purple:#9B6DD6;--blue:#4FA3D1;--gold:#E8B23B;--teal:#2BB3A3;--amber:#E8A93B;--radius:22px;--shadow:0 6px 0 rgba(58,48,38,.12);}
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;padding:0}
+  body{font-family:'Nunito',system-ui,sans-serif;color:var(--ink);background:var(--cream);min-height:100vh;display:flex;flex-direction:column;align-items:center}
+  h1,h2,h3{font-family:'Fredoka',sans-serif;font-weight:600;letter-spacing:.2px}
+  .app{width:100%;max-width:780px;padding:0 16px 40px;flex:1;display:flex;flex-direction:column}
+  .topbar{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:14px 4px 10px;flex-wrap:wrap}
+  .brand{display:flex;align-items:center;gap:10px;cursor:pointer}
+  .brand .mark{width:36px;height:36px;border-radius:12px;background:var(--leaf);display:grid;place-items:center;box-shadow:var(--shadow)}
+  .brand h1{font-size:23px;margin:0;color:var(--leaf-dark)}
+  .stats{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+  .pill{font-family:'Fredoka';font-weight:600;background:var(--paper);border:2px solid #efe2c9;border-radius:999px;padding:6px 11px;font-size:14px;display:flex;align-items:center;gap:5px;box-shadow:var(--shadow);cursor:default}
+  button.pill{cursor:pointer}button.pill:active{transform:translateY(2px);box-shadow:none}
+  .pill.stk{background:#FFF3D6;border-color:#f0d999}
+  .iconbtn{width:40px;height:40px;border-radius:13px;border:2px solid #efe2c9;background:var(--paper);cursor:pointer;display:grid;place-items:center;box-shadow:var(--shadow)}
+  .iconbtn:active{transform:translateY(2px);box-shadow:none}
+  .voicesel{font-family:'Nunito';font-weight:700;font-size:12px;border:2px solid #efe2c9;border-radius:12px;padding:6px 7px;background:var(--paper);max-width:132px;box-shadow:var(--shadow)}
+  .card{background:var(--paper);border:2px solid #efe2c9;border-radius:var(--radius);box-shadow:var(--shadow);padding:18px}
+  .center{text-align:center}
+  .big-btn{font-family:'Fredoka';font-weight:600;font-size:21px;color:#fff;background:var(--leaf);border:none;border-radius:18px;padding:15px 26px;cursor:pointer;box-shadow:0 6px 0 var(--leaf-dark);transition:transform .08s}
+  .big-btn:active{transform:translateY(4px);box-shadow:0 2px 0 var(--leaf-dark)}
+  .big-btn.alt{background:var(--blue);box-shadow:0 6px 0 #2f7da8}.big-btn.alt:active{box-shadow:0 2px 0 #2f7da8}
+  .big-btn:disabled{opacity:.5}
+  .ghost-btn{font-family:'Fredoka';font-weight:600;font-size:16px;color:var(--ink-soft);background:transparent;border:2px solid #e7d8bd;border-radius:14px;padding:10px 16px;cursor:pointer}
+  .ghost-btn:active{transform:translateY(2px)}
+  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:center}
+  .garden-wrap{border-radius:var(--radius);overflow:hidden;border:2px solid #efe2c9;box-shadow:var(--shadow);background:#dcf0f8}
+  .garden-wrap svg{display:block;width:100%;height:auto}
+  .tree{display:flex;flex-direction:column;gap:14px;margin-top:18px}
+  .tier{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+  .node{position:relative;font-family:'Fredoka';font-weight:600;font-size:16px;border-radius:16px;padding:14px 16px;min-width:122px;text-align:center;cursor:pointer;border:2.5px solid;box-shadow:var(--shadow);transition:transform .08s}
+  .node small{display:block;font-family:'Nunito';font-weight:700;font-size:11px;opacity:.72;margin-top:2px}
+  .node:active{transform:translateY(3px);box-shadow:none}
+  .node.ph-found{background:#DBF4F0;border-color:var(--teal);color:#16685f}
+  .node.ph-core{background:#E5EEFB;border-color:var(--blue);color:#1f5f8a}
+  .node.ph-supp{background:#FBEFD6;border-color:var(--amber);color:#8a5e10}
+  .node.ph-adv{background:#EEE3FB;border-color:var(--purple);color:#5b3a91}
+  .node .play{position:absolute;top:-9px;right:-9px;width:26px;height:26px;border-radius:50%;background:var(--leaf);display:grid;place-items:center;box-shadow:var(--shadow)}
+  .node .lvl{position:absolute;top:-12px;left:-8px;font-size:17px}
+  .sectlabel{font-family:'Fredoka';font-weight:600;color:var(--ink-soft);font-size:14px;text-align:center;margin:6px 0 -4px}
+  .progress-dots{display:flex;gap:8px;justify-content:center;margin:6px 0 10px}
+  .dot{width:11px;height:11px;border-radius:50%;background:#e3d4b9}.dot.on{background:var(--leaf)}.dot.done{background:var(--leaf-dark)}
+  .pcount{text-align:center;font-family:'Fredoka';font-weight:600;color:var(--ink-soft);font-size:13px;margin-bottom:8px}
+  .stage{min-height:290px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px}
+  .equation{font-family:'Fredoka';font-weight:700;font-size:40px;color:var(--ink)}.equation .res{color:var(--leaf-dark)}
+  .basket-row{display:flex;align-items:center;justify-content:center;gap:22px;flex-wrap:wrap}
+  .basket{background:#f3e6cd;border:3px solid #d9bd8e;border-radius:0 0 26px 26px;padding:14px;min-width:120px;min-height:96px;display:flex;flex-wrap:wrap;gap:6px;align-items:center;justify-content:center}
+  .basket.small{min-width:84px;min-height:74px;padding:10px}.basket.gsmall{min-width:70px;min-height:70px;padding:9px;border-radius:14px}
+  .plus{font-family:'Fredoka';font-weight:700;font-size:38px;color:var(--ink-soft)}
+  .apple{transition:transform .5s ease,opacity .4s}.apple.count{animation:pop .4s}.apple.gone{opacity:.18;filter:grayscale(1)}
+  @keyframes pop{0%{transform:scale(1)}50%{transform:scale(1.45)}100%{transform:scale(1)}}
+  .countnum{font-family:'Fredoka';font-weight:700;font-size:54px;color:var(--leaf-dark);min-height:60px}
+  .story{font-size:20px;font-weight:700;text-align:center;max-width:500px;line-height:1.4}
+  .qline{font-weight:800;color:var(--leaf-dark);font-size:18px;text-align:center}
+  .items{display:flex;align-items:center;justify-content:center;gap:18px;flex-wrap:wrap}
+  .grp{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;max-width:270px}
+  .groups{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
+  .item-dot{transition:transform .3s,opacity .3s}.item-dot.lit{animation:pop .35s}.item-dot.gone{opacity:.2;filter:grayscale(1)}
+  .choices{display:flex;gap:14px;flex-wrap:wrap;justify-content:center}
+  .choice{font-family:'Fredoka';font-weight:700;font-size:32px;min-width:84px;height:84px;padding:0 14px;border-radius:20px;border:3px solid #e7d8bd;background:var(--paper);cursor:pointer;box-shadow:var(--shadow)}
+  .choice:active{transform:translateY(3px);box-shadow:none}
+  .choice.right{background:var(--leaf);color:#fff;border-color:var(--leaf-dark);animation:pop .4s}
+  .choice.wrong{background:#fbe1da;border-color:var(--apple);animation:shake .35s}
+  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+  .feedback{font-family:'Fredoka';font-weight:600;font-size:20px;min-height:28px;text-align:center}
+  .feedback.good{color:var(--leaf-dark)}.feedback.soft{color:var(--ink-soft)}
+  .mini-row{display:flex;flex-wrap:wrap;gap:16px;justify-content:center;align-items:flex-end}
+  .mini{display:flex;flex-direction:column;align-items:center;gap:2px;font-family:'Fredoka';font-weight:600;color:var(--ink-soft);font-size:13px}
+  .splitbtns{display:flex;gap:7px;flex-wrap:wrap;justify-content:center}
+  .sb{font-family:'Fredoka';font-weight:700;font-size:18px;width:44px;height:44px;border-radius:12px;border:2px solid #e7d8bd;background:var(--paper);cursor:pointer}
+  .sb.on{background:var(--purple);color:#fff;border-color:var(--purple)}
+  .seq{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+  .seqbox{font-family:'Fredoka';font-weight:700;font-size:26px;width:58px;height:58px;border-radius:14px;border:3px solid #e7d8bd;background:var(--paper);display:grid;place-items:center}
+  .seqbox.q{border-color:var(--leaf);color:var(--leaf-dark)}
+  .pw{display:flex;flex-direction:column;align-items:center;gap:10px}
+  .pw-whole{font-family:'Fredoka';font-weight:700;font-size:36px;color:var(--leaf-dark);background:#eaf7ef;border:3px solid var(--leaf);border-radius:16px;padding:6px 26px}
+  .pw-parts{display:flex;align-items:center;gap:14px}
+  .qmark{display:grid;place-items:center;font-family:'Fredoka';font-weight:700;font-size:38px;color:var(--ink-soft)}
+  .plates{display:flex;gap:14px;justify-content:center;margin-top:12px;flex-wrap:wrap}
+  .plate{min-width:66px;min-height:66px;border-radius:50%;border:3px dashed #c9a36a;background:#fdf6e7;display:flex;flex-wrap:wrap;gap:3px;align-items:center;justify-content:center;padding:7px}
+  .badge{font-family:'Fredoka';font-weight:700;font-size:26px;color:var(--leaf-dark);text-align:center}
+  .stagecount{font-family:'Fredoka';font-weight:700;font-size:18px;color:var(--ink-soft)}
+  .stk{display:flex;flex-direction:column;align-items:center;gap:6px;width:104px}
+  .stk-face{width:82px;height:82px;border-radius:22px;display:grid;place-items:center;font-size:38px;background:var(--sc);border:4px solid #fff;box-shadow:0 5px 0 rgba(0,0,0,.12),inset 0 6px 10px rgba(255,255,255,.45)}
+  .stk.off .stk-face{background:#e7dcc6;border-style:dashed;border-color:#cdbb9d;color:#b7a888;box-shadow:none}
+  .stk-name{font-family:'Fredoka';font-weight:600;font-size:13px;color:var(--ink-soft);text-align:center}.stk.off .stk-name{opacity:.55}
+  .stk-grid{display:flex;flex-wrap:wrap;gap:16px;justify-content:center;margin-top:12px}
+  .newstk{display:flex;flex-direction:column;align-items:center;gap:8px;background:#fff7e6;border:2px dashed var(--gold);border-radius:16px;padding:12px 18px}
+  .comp{display:flex;align-items:center;gap:10px;justify-content:center;margin-top:16px}
+  .lady{width:74px;flex:none}.lady svg{display:block;width:100%;height:auto;animation:wiggle 2.6s ease-in-out infinite;transform-origin:50% 80%}
+  @keyframes wiggle{0%,100%{transform:rotate(-4deg)}50%{transform:rotate(4deg)}}
+  .bubble{background:#fff;border:2px solid #efe2c9;border-radius:16px;padding:10px 14px;font-family:'Fredoka';font-weight:600;color:var(--ink);box-shadow:var(--shadow);max-width:340px;font-size:15px;position:relative}
+  .bubble:before{content:'';position:absolute;left:-9px;top:20px;border:7px solid transparent;border-right-color:#efe2c9}
+  .ob-row{display:flex;align-items:center;gap:12px;margin-top:12px;flex-wrap:wrap;justify-content:center}
+  .ob-label{font-family:'Fredoka';font-weight:600;color:var(--ink-soft);width:88px;text-align:right;font-size:15px}
+  .nameinput{font-family:'Nunito';font-weight:700;font-size:18px;border:2px solid #e7d8bd;border-radius:12px;padding:10px 14px;width:220px}
+  .swatches{display:flex;gap:8px;flex-wrap:wrap}
+  .swatch{width:38px;height:38px;border-radius:50%;border:3px solid #fff;box-shadow:0 0 0 2px #e7d8bd;cursor:pointer}
+  .swatch.sel{box-shadow:0 0 0 3px var(--leaf)}
+  .swatchlbl{font-family:'Fredoka';font-weight:600;font-size:14px;border:2px solid #e7d8bd;background:var(--paper);border-radius:12px;padding:8px 14px;cursor:pointer}
+  .swatchlbl.sel{background:var(--leaf);color:#fff;border-color:var(--leaf)}
+  .footnote{margin-top:auto;padding-top:24px;text-align:center;color:var(--ink-soft);font-size:12.5px;font-weight:600;opacity:.8}
+  @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+  @media (max-width:520px){.equation{font-size:32px}.choice{min-width:70px;height:70px;font-size:26px}.brand h1{font-size:19px}.node{min-width:106px;font-size:15px}.ob-label{width:100%;text-align:center}}
+</style>
+</head>
+<body>
+<div class="app" id="app"></div>
+<script>
+/* ============================================================
+   BLOOM — Math Garden
+   DATA: SKILLS + LESSONS (gen=practice pool, exampleGen=explain pool).
+   Store = the only persistence seam (device-local; swap to
+   @capacitor/preferences for the app). Companion = Dot the ladybug.
+   ============================================================ */
+const SKILLS=[
+  {id:'counting',name:'Counting',sub:'1, 2, 3…',phase:'found',tier:0},
+  {id:'subitize',name:'Subitizing',sub:'see at a glance',phase:'found',tier:0},
+  {id:'compare',name:'Compare',sub:'more / less',phase:'found',tier:0},
+  {id:'order',name:'Ordering',sub:'number line',phase:'found',tier:0},
+  {id:'compose',name:'Make & break',sub:'7 = 3 and 4',phase:'core',tier:1},
+  {id:'addition',name:'Addition',sub:'put together',phase:'core',tier:2},
+  {id:'subtract',name:'Subtraction',sub:'take away',phase:'core',tier:2},
+  {id:'skip',name:'Skip counting',sub:'2, 4, 6…',phase:'supp',tier:3},
+  {id:'place',name:'Place value',sub:'tens & ones',phase:'supp',tier:3},
+  {id:'multiply',name:'Multiply',sub:'equal groups',phase:'adv',tier:4},
+  {id:'divide',name:'Divide',sub:'fair shares',phase:'adv',tier:4},
+];
+const SKILL_ICON={counting:'🔢',subitize:'👀',compare:'⚖️',order:'📏',compose:'🧩',addition:'➕',subtract:'➖',skip:'🐰',place:'🔟',multiply:'✖️',divide:'➗'};
+const PHASE_COLOR={found:'var(--teal)',core:'var(--blue)',supp:'var(--amber)',adv:'var(--purple)'};
+const MILESTONES=[{id:'m-first',name:'First Bloom',icon:'🌸',color:'var(--pink)'},{id:'m-ten',name:'Ten Flowers',icon:'🌻',color:'var(--gold)'},{id:'m-all',name:'Garden Master',icon:'👑',color:'var(--leaf)'}];
+function allStickers(){return SKILLS.map(s=>({id:'st-'+s.id,name:s.name,icon:SKILL_ICON[s.id],color:PHASE_COLOR[s.phase]})).concat(MILESTONES);}
+function stickerDef(id){return allStickers().find(x=>x.id===id);}
+
+const OBJECTS={apple:{w:'apple',p:'apples'},orange:{w:'orange',p:'oranges'},strawberry:{w:'strawberry',p:'strawberries'},banana:{w:'banana',p:'bananas'},ball:{w:'ball',p:'balls'},balloon:{w:'balloon',p:'balloons'},block:{w:'block',p:'blocks'},firework:{w:'firework',p:'fireworks'},cookie:{w:'cookie',p:'cookies'},star:{w:'star',p:'stars'},coin:{w:'coin',p:'coins'}};
+const POOL=['apple','orange','strawberry','banana','ball','balloon','block','star'];
+const FRUITS=['apple','orange','strawberry','banana'];
+const SHARE=['cookie','apple','orange','strawberry'];
+
+const SESSION_LEN=5;
+const rand=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
+const pick=a=>a[rand(0,a.length-1)];
+
+/* companion lines (playful & silly) */
+const CHEER=["Wheee! A brand-new flower!","Ka-bloom! You did it!","Yesss! My spots are wiggling!","Hooray! *happy tumble*","Petal power! Nice one!","Boing! Another flower!"];
+const OOPS=["Oopsie-doodle! Let's peek again.","Hehe, sneaky one — let's look together.","Wobble wobble… let's count it out!","No biggie! Let's try once more.","Whoopsie! I get dizzy too. Look again!"];
+const BLOOMLINE=["WOWEE! Your garden is showing off!","Look at it BLOOM! So proud of you!","Ta-daaa! Beautiful garden!"];
+const INTRO=["Ooh, this one's fun — follow me!","My favorite! Let's gooo!","Tippy-taps ready? Here we go!","Wiggle wiggle, let's learn!"];
+function greetLines(){const n=state.name||'friend';return[`Hi ${n}! It's me, Dot! Ready to grow your garden? 🐞`,`${n}! I watered your flowers. Let's play!`,`Buzz—oops, wrong bug! Hi ${n}, let's do math!`,`Yay, ${n} is back! Pick a skill and let's bloom!`];}
+
+const state={view:'home',sound:true,voiceURI:null,xp:0,flowers:0,skillLevel:{},stickers:{},
+  name:'',avatar:{skin:'#EBB68C',hair:'short',hairColor:'#5A3A1E',shirt:'var(--blue)'},
+  _greeted:false,comp:{mood:'happy',line:''},
+  lesson:{id:null,step:0,pIndex:0,solved:0,problems:[],example:null}};
+const TOTAL_STEPS=4;
+
+/* ---------- PERSISTENCE (the one seam) ---------- */
+let _mem=null;
+const Store={
+  load(){try{const r=localStorage.getItem('bloom.save');return r?JSON.parse(r):_mem;}catch(e){return _mem;}},
+  save(d){try{localStorage.setItem('bloom.save',JSON.stringify(d));}catch(e){_mem=d;}},
+  clear(){try{localStorage.removeItem('bloom.save');}catch(e){}_mem=null;}
+};
+function persist(){Store.save({v:2,xp:state.xp,flowers:state.flowers,skillLevel:state.skillLevel,stickers:state.stickers,sound:state.sound,voiceURI:state.voiceURI,name:state.name,avatar:state.avatar});}
+function loadSave(){const d=Store.load();if(d){state.xp=d.xp||0;state.flowers=d.flowers||0;state.skillLevel=d.skillLevel||{};state.stickers=d.stickers||{};if(typeof d.sound==='boolean')state.sound=d.sound;if(d.voiceURI)state.voiceURI=d.voiceURI;if(d.name)state.name=d.name;if(d.avatar)state.avatar=Object.assign(state.avatar,d.avatar);}}
+
+/* ---------- VOICE ---------- */
+let VOICES=[];
+const PREFER=['natural','neural','google','samantha','karen','aria','jenny','libby','sonia','eva','ava','allison','serena','tessa','moira','fiona','zoe'];
+function loadVoices(){const all=(window.speechSynthesis?speechSynthesis.getVoices():[])||[];VOICES=all.filter(v=>/^en/i.test(v.lang));if(VOICES.length&&!state.voiceURI)state.voiceURI=pickBestVoice().voiceURI;}
+function pickBestVoice(){let best=VOICES[0],score=-1;VOICES.forEach(v=>{let s=0;const n=(v.name||'').toLowerCase();PREFER.forEach((p,i)=>{if(n.includes(p))s+=(PREFER.length-i)*3;});if(/online|natural|neural/.test(n))s+=10;if(v.lang==='en-US')s+=4;else if(v.lang==='en-GB')s+=3;if(/female|woman/.test(n))s+=2;if(s>score){score=s;best=v;}});return best||VOICES[0];}
+function speak(t){if(!state.sound||!window.speechSynthesis)return;try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);const v=(speechSynthesis.getVoices()||[]).find(x=>x.voiceURI===state.voiceURI);if(v)u.voice=v;u.rate=0.9;u.pitch=1.2;u.lang=(v&&v.lang)||'en-US';speechSynthesis.speak(u);}catch(e){}}
+function stopSpeak(){try{speechSynthesis.cancel()}catch(e){}}
+
+/* ---------- OBJECTS (2D) ---------- */
+function appleInner(green){const body=green?'var(--apple-green)':'var(--apple)';return `<path d="M20 9 C16 4 9 5 9 5 C12 6 13 9 13 11" fill="none" stroke="#7a4a25" stroke-width="2.4" stroke-linecap="round"/><path d="M20 10 C13 8 6 12 6 22 C6 31 12 37 16 37 C18 37 19 36 20 36 C21 36 22 37 24 37 C28 37 34 31 34 22 C34 12 27 8 20 10 Z" fill="${body}"/><ellipse cx="14" cy="18" rx="3.2" ry="4.4" fill="#fff" opacity=".35"/><path d="M21 9 C23 5 28 4 31 6 C28 6 25 8 23 11 Z" fill="var(--leaf)"/>`;}
+function appleSVG(s,green){s=s||34;return `<svg class="apple" width="${s}" height="${s}" viewBox="0 0 40 40">${appleInner(green)}</svg>`;}
+function objInner(kind){switch(kind){
+  case 'apple':return appleInner(false);
+  case 'orange':return '<circle cx="20" cy="21" r="13" fill="#F49A20"/><circle cx="20" cy="21" r="13" fill="none" stroke="#d98418" stroke-width="1"/><ellipse cx="15" cy="16" rx="3" ry="4" fill="#fff" opacity=".3"/><rect x="19" y="7" width="2" height="4" rx="1" fill="#7a4a25"/><path d="M21 9 Q26 7 28 10 Q24 10 22 12Z" fill="var(--leaf)"/>';
+  case 'strawberry':return '<path d="M20 13 C11 13 9 21 20 37 C31 21 29 13 20 13Z" fill="#E24352"/><circle cx="15" cy="21" r="1" fill="#ffe08a"/><circle cx="21" cy="21" r="1" fill="#ffe08a"/><circle cx="18" cy="27" r="1" fill="#ffe08a"/><circle cx="23" cy="26" r="1" fill="#ffe08a"/><path d="M13 14 L20 9 L27 14 Q20 17 13 14Z" fill="var(--leaf)"/>';
+  case 'banana':return '<path d="M12 11 C13 25 23 32 33 29 C25 27 19 19 18 11 Q15 9 12 11Z" fill="#F6C544" stroke="#e0a91f" stroke-width="1"/><path d="M32 29 l3 -1" stroke="#7a5a2c" stroke-width="2" stroke-linecap="round"/>';
+  case 'ball':return '<circle cx="20" cy="21" r="13" fill="#4FA3D1"/><path d="M7 21 a13 13 0 0 1 26 0" fill="#fff" opacity=".22"/><path d="M20 8 V34 M8 21 H32" stroke="#2f7da8" stroke-width="1.6" opacity=".6"/>';
+  case 'balloon':return '<ellipse cx="20" cy="17" rx="10" ry="12" fill="#E26D9E"/><path d="M18 28 L20 31 L22 28Z" fill="#E26D9E"/><path d="M20 31 q3 4 0 7" stroke="#b5567f" stroke-width="1.2" fill="none"/><ellipse cx="16" cy="12" rx="2.5" ry="3.5" fill="#fff" opacity=".45"/>';
+  case 'block':return '<rect x="8" y="12" width="24" height="22" rx="4" fill="#9B6DD6"/><rect x="8" y="12" width="24" height="7" rx="4" fill="#fff" opacity=".15"/><text x="20" y="29" font-size="13" fill="#fff" text-anchor="middle" font-family="Fredoka" font-weight="700">A</text>';
+  case 'firework':{let g='<g stroke="#F6C544" stroke-width="2" stroke-linecap="round">';const A=[0,45,90,135,180,225,270,315];A.forEach(a=>{const r=13,x=20+r*Math.cos(a*Math.PI/180),y=20+r*Math.sin(a*Math.PI/180),x0=20+5*Math.cos(a*Math.PI/180),y0=20+5*Math.sin(a*Math.PI/180);g+=`<line x1="${x0.toFixed(1)}" y1="${y0.toFixed(1)}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}"/>`;});g+='</g><circle cx="20" cy="20" r="3" fill="#E2553E"/>';A.forEach(a=>{const r=13,x=20+r*Math.cos(a*Math.PI/180),y=20+r*Math.sin(a*Math.PI/180);g+=`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="1.6" fill="#E26D9E"/>`;});return g;}
+  case 'cookie':return '<circle cx="20" cy="20" r="13" fill="#caa15a"/><circle cx="15" cy="17" r="1.8" fill="#7a5a2c"/><circle cx="25" cy="15" r="1.8" fill="#7a5a2c"/><circle cx="22" cy="25" r="1.8" fill="#7a5a2c"/><circle cx="14" cy="24" r="1.8" fill="#7a5a2c"/>';
+  case 'coin':return '<circle cx="20" cy="20" r="13" fill="var(--gold)"/><circle cx="20" cy="20" r="8" fill="none" stroke="#b07f12" stroke-width="1.6"/><text x="20" y="25" font-size="10" fill="#b07f12" text-anchor="middle" font-family="Fredoka" font-weight="700">$</text>';
+  default:return '<path d="M20 5l4.3 10.5L35 16l-8 7.2L29.3 34 20 28.3 10.7 34 13 23.2 5 16l10.7-.5z" fill="var(--sun)"/>';
+}}
+function objSVG(kind,gone,size){size=size||32;const cls='item-dot'+(gone?' gone':'');const cross=gone?'<line x1="5" y1="5" x2="35" y2="35" stroke="#b33" stroke-width="3"/>':'';return `<svg class="${cls}" width="${size}" height="${size}" viewBox="0 0 40 40">${objInner(kind)}${cross}</svg>`;}
+function dot(kind,gone){return objSVG(kind,gone);}
+function groupDots(n,kind,goneFrom,size){let h='';for(let i=0;i<n;i++)h+=objSVG(kind,goneFrom!=null&&i>=goneFrom,size);return h;}
+function dicePattern(n){const map={1:[4],2:[0,8],3:[0,4,8],4:[0,2,6,8],5:[0,2,4,6,8],6:[0,2,3,5,6,8]};const cells=map[n]||[4];let d='';cells.forEach(i=>{const col=i%3,row=Math.floor(i/3);d+=`<circle class="item-dot" cx="${18+col*24}" cy="${18+row*24}" r="9" fill="var(--apple)"/>`;});return `<svg width="84" height="84" viewBox="0 0 84 84"><rect x="2" y="2" width="80" height="80" rx="14" fill="#fff" stroke="#d9bd8e" stroke-width="2.5"/>${d}</svg>`;}
+function seqBoxes(arr){return `<div class="seq">`+arr.map(v=>`<div class="seqbox ${v==='?'?'q':''}">${v}</div>`).join('')+`</div>`;}
+function partWhole(w,g,kind){kind=kind||'apple';return `<div class="pw"><div class="pw-whole">${w}</div><div class="pw-parts"><div class="basket small">${groupDots(g,kind)}</div><span class="plus">+</span><div class="basket small qmark">?</div></div></div>`;}
+function tenBlocks(t,o){const w=t*26+18+Math.ceil(o/5)*20;let g='';for(let i=0;i<t;i++){const x=4+i*26;g+=`<rect x="${x}" y="2" width="20" height="62" rx="4" fill="var(--blue)"/>`;for(let k=1;k<10;k++)g+=`<line x1="${x}" y1="${2+k*6.2}" x2="${x+20}" y2="${2+k*6.2}" stroke="#2f7da8" stroke-width="1"/>`;}const ox=t*26+12;for(let j=0;j<o;j++){const col=Math.floor(j/5),r=j%5;g+=`<rect x="${ox+col*20}" y="${4+r*12}" width="11" height="11" rx="2" fill="var(--amber)"/>`;}return `<svg width="${w}" height="70" viewBox="0 0 ${w} 70">${g}</svg>`;}
+function arrayGroups(n,m,kind){let h='';for(let i=0;i<n;i++)h+=`<div class="basket gsmall">${groupDots(m,kind||'apple',null,28)}</div>`;return `<div class="groups">${h}</div>`;}
+function platesShare(x,y,kind,size){kind=kind||'cookie';size=size||20;let pl='';for(let i=0;i<y;i++)pl+=`<div class="plate" id="plate${i}"></div>`;return `<div style="display:flex;flex-direction:column;align-items:center;gap:6px"><div class="grp" id="pile" style="max-width:300px">${groupDots(x,kind,null,size)}</div><div class="plates">${pl}</div></div>`;}
+function wayPanel(w,a,b){a=a==null?3:a;b=b==null?4:b;const sum=a+b;
+  if(w==='fingers'){const fin=(lit,col)=>`<rect width="13" height="${lit?50:30}" y="${lit?0:20}" rx="6" fill="${lit?col:'#e8d9be'}"/>`;let l='',r='';for(let i=0;i<5;i++){l+=`<g transform="translate(${i*18},0)">${fin(i<a,'var(--apple)')}</g>`;r+=`<g transform="translate(${i*18},0)">${fin(i<b,'var(--apple-green)')}</g>`;}return `<svg width="220" height="64" viewBox="0 0 220 64"><g transform="translate(8,12)">${l}</g><text x="106" y="40" font-family="Fredoka" font-size="24" fill="#6E5E4C">+</text><g transform="translate(126,12)">${r}</g></svg>`;}
+  if(w==='sticks'){const st=c=>`<rect width="8" height="50" rx="4" fill="${c}"/>`;let x='',y2='';for(let i=0;i<a;i++)x+=`<g transform="translate(${i*14},0)">${st('var(--apple)')}</g>`;for(let i=0;i<b;i++)y2+=`<g transform="translate(${i*14},0)">${st('var(--apple-green)')}</g>`;const off=a*14+18;return `<svg width="${off+b*14+8}" height="60" viewBox="0 0 ${off+b*14+8} 60"><g transform="translate(6,6)">${x}</g><text x="${a*14+2}" y="40" font-family="Fredoka" font-size="24" fill="#6E5E4C">+</text><g transform="translate(${off},6)">${y2}</g></svg>`;}
+  if(w==='frame'){let c='';for(let i=0;i<10;i++){const px=(i%5)*36+2,py=Math.floor(i/5)*36+2,f=i<a?'var(--apple)':i<sum?'var(--apple-green)':null;c+=`<rect x="${px}" y="${py}" width="32" height="32" rx="6" fill="#fff" stroke="#d9bd8e" stroke-width="2"/>`;if(f)c+=`<circle cx="${px+16}" cy="${py+16}" r="11" fill="${f}"/>`;}return `<svg width="184" height="76" viewBox="0 0 184 76">${c}</svg>`;}
+  const W=210,pad=16,span=(W-2*pad)/sum;let t='';for(let i=0;i<=sum;i++){const px=pad+i*span;t+=`<line x1="${px}" y1="40" x2="${px}" y2="48" stroke="#6E5E4C" stroke-width="2"/><text x="${px}" y="62" text-anchor="middle" font-family="Fredoka" font-size="11" fill="#6E5E4C">${i}</text>`;}return `<svg width="${W}" height="70" viewBox="0 0 ${W} 70"><line x1="${pad}" y1="44" x2="${W-pad}" y2="44" stroke="#6E5E4C" stroke-width="3" stroke-linecap="round"/>${t}<text x="${pad+a*span-8}" y="30" font-size="20">🐰</text></svg>`;
+}
+
+/* ---------- AVATAR ---------- */
+function hairPath(style,hc){
+  if(style==='buzz')return `<path d="M27 36 Q27 20 45 20 Q63 20 63 36 Q55 28 45 28 Q35 28 27 36Z" fill="${hc}" opacity=".92"/>`;
+  if(style==='curly')return `<g fill="${hc}"><circle cx="30" cy="28" r="9"/><circle cx="40" cy="20" r="10"/><circle cx="52" cy="21" r="10"/><circle cx="61" cy="29" r="9"/><circle cx="45" cy="18" r="9"/></g>`;
+  if(style==='long')return `<path d="M24 40 Q22 15 45 15 Q68 15 66 40 L66 66 Q61 58 61 44 Q54 30 45 30 Q36 30 29 44 Q29 58 24 66Z" fill="${hc}"/>`;
+  return `<path d="M25 38 Q24 17 45 17 Q66 17 65 38 Q58 27 45 27 Q32 27 25 38Z" fill="${hc}"/>`;
+}
+function avatarInner(av){const sk=av.skin,hc=av.hairColor,sh=av.shirt;return `<g>
+  <rect x="35" y="86" width="8" height="20" rx="3" fill="#4a5b6b"/><rect x="47" y="86" width="8" height="20" rx="3" fill="#4a5b6b"/>
+  <ellipse cx="39" cy="107" rx="7" ry="4" fill="#3a2f28"/><ellipse cx="51" cy="107" rx="7" ry="4" fill="#3a2f28"/>
+  <rect x="26" y="56" width="38" height="36" rx="14" fill="${sh}"/>
+  <rect x="18" y="58" width="11" height="26" rx="5" fill="${sh}"/><rect x="61" y="58" width="11" height="26" rx="5" fill="${sh}"/>
+  <circle cx="23" cy="86" r="5" fill="${sk}"/><circle cx="67" cy="86" r="5" fill="${sk}"/>
+  <circle cx="26" cy="40" r="4" fill="${sk}"/><circle cx="64" cy="40" r="4" fill="${sk}"/>
+  <circle cx="45" cy="38" r="20" fill="${sk}"/>
+  ${hairPath(av.hair,hc)}
+  <circle cx="38" cy="40" r="2.4" fill="#2a2320"/><circle cx="52" cy="40" r="2.4" fill="#2a2320"/>
+  <path d="M39 47 Q45 52 51 47" stroke="#b06a4a" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <circle cx="33" cy="45" r="3" fill="#e98ea0" opacity=".5"/><circle cx="57" cy="45" r="3" fill="#e98ea0" opacity=".5"/>
+ </g>`;}
+function avatarSVG(av,size){size=size||120;return `<svg width="${size}" height="${Math.round(size*112/90)}" viewBox="0 0 90 112">${avatarInner(av)}</svg>`;}
+
+/* ---------- COMPANION (Dot the ladybug) ---------- */
+function ladyFace(mood){
+  if(mood==='cheer')return '<path d="M31 20 Q34 15 37 20" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M43 20 Q46 15 49 20" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M34 24 Q40 31 46 24 Z" fill="#fff"/>';
+  if(mood==='think')return '<ellipse cx="35" cy="19" rx="4" ry="5" fill="#fff"/><ellipse cx="47" cy="19" rx="4" ry="5" fill="#fff"/><circle cx="36" cy="17" r="2" fill="#1a1a1a"/><circle cx="48" cy="17" r="2" fill="#1a1a1a"/><circle cx="41" cy="26" r="2.2" fill="#fff"/>';
+  if(mood==='bloom')return '<path d="M35 15l1.4 3.4L40 19l-3 2 1 3.4-3-2-3 2 1-3.4-3-2 3.6-.6z" fill="#fff"/><path d="M52 15l1.4 3.4L57 19l-3 2 1 3.4-3-2-3 2 1-3.4-3-2 3.6-.6z" fill="#fff"/><path d="M34 25 Q40 30 46 25" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round"/>';
+  return '<ellipse cx="35" cy="19" rx="4" ry="5" fill="#fff"/><ellipse cx="47" cy="19" rx="4" ry="5" fill="#fff"/><circle cx="36" cy="20" r="2" fill="#1a1a1a"/><circle cx="48" cy="20" r="2" fill="#1a1a1a"/><path d="M36 25 Q41 29 46 25" stroke="#fff" stroke-width="1.8" fill="none" stroke-linecap="round"/>';
+}
+function ladybugSVG(mood){return `<svg viewBox="0 0 80 74" width="100%"><path d="M18 8 Q14 2 10 4" stroke="#2a2320" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M62 8 Q66 2 70 4" stroke="#2a2320" stroke-width="2" fill="none" stroke-linecap="round"/><circle cx="10" cy="4" r="2.4" fill="#2a2320"/><circle cx="70" cy="4" r="2.4" fill="#2a2320"/>
+  <g stroke="#2a2320" stroke-width="2.4" stroke-linecap="round"><line x1="16" y1="42" x2="6" y2="38"/><line x1="16" y1="50" x2="6" y2="52"/><line x1="64" y1="42" x2="74" y2="38"/><line x1="64" y1="50" x2="74" y2="52"/></g>
+  <ellipse cx="40" cy="44" rx="30" ry="26" fill="#E2553E"/><path d="M40 20 V70" stroke="#3a1f1a" stroke-width="2.5"/>
+  <g fill="#2a1a17"><circle cx="26" cy="40" r="4"/><circle cx="54" cy="40" r="4"/><circle cx="30" cy="56" r="3.6"/><circle cx="50" cy="56" r="3.6"/><circle cx="40" cy="62" r="3.6"/></g>
+  <ellipse cx="30" cy="34" rx="7" ry="4" fill="#fff" opacity=".18"/>
+  <ellipse cx="40" cy="20" rx="15" ry="13" fill="#2a2320"/>${ladyFace(mood)}</svg>`;}
+function companionWidget(){return `<div class="comp"><div class="lady" id="comp-face">${ladybugSVG(state.comp.mood)}</div><div class="bubble" id="comp-bubble">${state.comp.line||''}</div></div>`;}
+function setComp(mood,line,doSpeak){state.comp={mood,line};const f=document.getElementById('comp-face');const b=document.getElementById('comp-bubble');if(f)f.innerHTML=ladybugSVG(mood);if(b)b.textContent=line;if(doSpeak&&line)speak(line);}
+
+/* ---------- GARDEN (iso) ---------- */
+function plantSprite(type,x,y,color){const sh=`<ellipse cx="${x}" cy="${y+3}" rx="13" ry="5" fill="rgba(40,25,10,.18)"/>`;
+  if(type==='tree')return `<g>${sh}<rect x="${x-3}" y="${y-20}" width="6" height="20" rx="2" fill="#8a5a34"/><circle cx="${x}" cy="${y-30}" r="14" fill="#4f9e46"/><circle cx="${x-10}" cy="${y-24}" r="10" fill="#5aa650"/><circle cx="${x+10}" cy="${y-24}" r="10" fill="#5aa650"/><circle cx="${x-5}" cy="${y-32}" r="2.6" fill="var(--apple)"/><circle cx="${x+6}" cy="${y-28}" r="2.6" fill="var(--apple)"/></g>`;
+  if(type==='bush')return `<g>${sh}<circle cx="${x-7}" cy="${y-8}" r="9" fill="#5aa64f"/><circle cx="${x+7}" cy="${y-8}" r="9" fill="#5aa64f"/><circle cx="${x}" cy="${y-14}" r="11" fill="#6bbf5b"/><circle cx="${x-4}" cy="${y-12}" r="2.2" fill="${color}"/><circle cx="${x+5}" cy="${y-9}" r="2.2" fill="${color}"/></g>`;
+  if(type==='tulip')return `<g>${sh}<rect x="${x-2}" y="${y-22}" width="4" height="22" fill="var(--leaf-dark)"/><path d="M${x-8} ${y-26} Q${x} ${y-42} ${x+8} ${y-26} Q${x+4} ${y-20} ${x} ${y-23} Q${x-4} ${y-20} ${x-8} ${y-26}Z" fill="${color}"/><ellipse cx="${x-7}" cy="${y-10}" rx="6" ry="3.5" fill="var(--leaf)" transform="rotate(-25 ${x-7} ${y-10})"/></g>`;
+  return `<g>${sh}<rect x="${x-2}" y="${y-24}" width="4" height="24" rx="2" fill="var(--leaf-dark)"/><ellipse cx="${x-8}" cy="${y-12}" rx="7" ry="4" fill="var(--leaf)" transform="rotate(-20 ${x-8} ${y-12})"/><ellipse cx="${x+8}" cy="${y-8}" rx="7" ry="4" fill="var(--leaf)" transform="rotate(20 ${x+8} ${y-8})"/><g transform="translate(${x},${y-30})"><circle cx="0" cy="-6" r="6" fill="${color}"/><circle cx="6" cy="0" r="6" fill="${color}"/><circle cx="-6" cy="0" r="6" fill="${color}"/><circle cx="3" cy="6" r="6" fill="${color}"/><circle cx="-3" cy="6" r="6" fill="${color}"/><circle cx="0" cy="0" r="4.5" fill="var(--sun)"/></g></g>`;}
+function gardenSVG(count,avatar){const C=6,R=4,tw=84,th=44,ox=210,oy=84,depth=18;const X=(c,r)=>ox+(c-r)*tw/2,Y=(c,r)=>oy+(c+r)*th/2;const left=[X(0,R-1)-tw/2,Y(0,R-1)],bottom=[X(C-1,R-1),Y(C-1,R-1)+th/2],right=[X(C-1,0)+tw/2,Y(C-1,0)];const sideL=`<polygon points="${left[0]},${left[1]} ${bottom[0]},${bottom[1]} ${bottom[0]},${bottom[1]+depth} ${left[0]},${left[1]+depth}" fill="#6b4327"/>`;const sideR=`<polygon points="${bottom[0]},${bottom[1]} ${right[0]},${right[1]} ${right[0]},${right[1]+depth} ${bottom[0]},${bottom[1]+depth}" fill="#7d4f2f"/>`;let tiles='';for(let r=0;r<R;r++)for(let c=0;c<C;c++){const x=X(c,r),y=Y(c,r);const g=(c+r)%2?'#8fce6f':'#7cbf62';tiles+=`<polygon points="${x},${y-th/2} ${x+tw/2},${y} ${x},${y+th/2} ${x-tw/2},${y}" fill="${g}" stroke="#6fae55" stroke-width="1"/>`;}const order=[];for(let r=0;r<R;r++)for(let c=0;c<C;c++)order.push([c,r]);const shown=Math.min(count,order.length);const pal=['var(--pink)','var(--purple)','var(--gold)','var(--apple)','var(--blue)','#ff8fb1','#b98cff'];let plants=[];for(let i=0;i<shown;i++){const[c,r]=order[i];const x=X(c,r),y=Y(c,r);const t=i%8;const type=t===7?'tree':t===3?'bush':(t===1||t===5)?'tulip':'flower';plants.push({d:c+r,svg:plantSprite(type,x,y,pal[i%pal.length])});}plants.sort((a,b)=>a.d-b.d);const av=avatar?`<g transform="translate(98,103) scale(0.62)">${avatarInner(avatar)}</g>`:'';return `<svg viewBox="0 0 520 312" role="img" aria-label="Your garden" style="width:100%"><defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#bfe6f7"/><stop offset="1" stop-color="#e7f6ee"/></linearGradient></defs><rect width="520" height="312" fill="url(#sky)"/><circle cx="472" cy="44" r="24" fill="var(--sun)"/><ellipse cx="108" cy="50" rx="40" ry="18" fill="#fff" opacity=".85"/><ellipse cx="148" cy="44" rx="28" ry="15" fill="#fff" opacity=".85"/>${sideL}${sideR}${tiles}${plants.map(p=>p.svg).join('')}${av}</svg>`;}
+
+/* ---------- SHELL / TOP NAV ---------- */
+function topbar(){
+  const sIcon=state.sound?`<svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#3A3026" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M19 5a9 9 0 0 1 0 14"/></svg>`:`<svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#3A3026" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4z"/><line x1="22" y1="9" x2="16" y2="15"/><line x1="16" y1="9" x2="22" y2="15"/></svg>`;
+  const owned=Object.keys(state.stickers).length,total=allStickers().length;
+  let vsel='';if(VOICES.length)vsel=`<select class="voicesel" id="voiceSel" title="Pick a friendly voice">`+VOICES.map(v=>`<option value="${v.voiceURI}" ${v.voiceURI===state.voiceURI?'selected':''}>${(v.name||'Voice').replace(/Microsoft|Google|Online|\(Natural\)/g,'').trim()||v.name}</option>`).join('')+`</select>`;
+  return `<div class="topbar"><div class="brand" id="brandBtn"><div class="mark"><svg width="21" height="21" viewBox="0 0 24 24" fill="#fff"><path d="M12 3c-2 3-6 4-6 9a6 6 0 0 0 12 0c0-5-4-6-6-9z"/></svg></div><h1>Bloom</h1></div>
+    <div class="stats">${vsel}<button class="pill stk" id="stkPill" title="Sticker book">📖 ${owned}/${total}</button><span class="pill"><svg width="15" height="15" viewBox="0 0 24 24" fill="var(--sun)"><path d="M12 2l2.6 6.3L21 9l-4.8 4.3L17.6 21 12 17.3 6.4 21l1.4-7.7L3 9l6.4-.7z"/></svg>${state.xp}</span><span class="pill">🌸 ${state.flowers}</span><button class="iconbtn" id="soundBtn" aria-label="Toggle sound">${sIcon}</button></div></div>`;
+}
+function mount(html){
+  document.getElementById('app').innerHTML=topbar()+html+`<div class="footnote">Bloom · a calm math garden for ages 5–6 · no timers, no wrong answers — only "let's look again"</div>`;
+  const sb=document.getElementById('soundBtn');if(sb)sb.onclick=()=>{state.sound=!state.sound;if(!state.sound)stopSpeak();render();};
+  const vs=document.getElementById('voiceSel');if(vs)vs.onchange=()=>{state.voiceURI=vs.value;persist();speak("Hi! It's me, Dot! Let's grow a garden!");};
+  const bb=document.getElementById('brandBtn');if(bb)bb.onclick=()=>{stopSpeak();state.view='home';render();};
+  const sp=document.getElementById('stkPill');if(sp)sp.onclick=()=>{stopSpeak();state.view='stickers';render();};
+}
+
+/* ---------- ONBOARDING / AVATAR BUILDER ---------- */
+const SKINS=['#F8D5B0','#EBB68C','#D69A6C','#A5673F','#6D4327'];
+const HAIRS=[{v:'short',label:'Short'},{v:'curly',label:'Curly'},{v:'long',label:'Long'},{v:'buzz',label:'Buzz'}];
+const HAIRCOLS=['#2B2018','#5A3A1E','#9B5A2B','#D9A441','#B0563B'];
+const SHIRTS=['var(--blue)','var(--apple)','var(--purple)','var(--leaf)','var(--gold)'];
+function swatchRow(label,items,key,cur){return `<div class="ob-row"><label class="ob-label">${label}</label><div class="swatches">`+items.map(it=>{const sel=it.v===cur?' sel':'';return it.label?`<button class="swatchlbl${sel}" data-set="${key}" data-val="${it.v}">${it.label}</button>`:`<button class="swatch${sel}" data-set="${key}" data-val="${it.v}" style="background:${it.v}"></button>`;}).join('')+`</div></div>`;}
+function renderOnboard(){const av=state.avatar,editing=!!state.name;
+  mount(`<div class="card" style="margin-top:6px"><div class="comp" style="margin-top:0"><div class="lady">${ladybugSVG('cheer')}</div><div class="bubble">${editing?"Let's change your look! 🐞":"Hi! I'm Dot the ladybug! Let's make YOUR character! 🐞"}</div></div>
+    <div class="center" style="margin-top:8px">${avatarSVG(av,150)}</div>
+    <div class="ob-row"><label class="ob-label">Name</label><input id="nameIn" class="nameinput" placeholder="Type your name" value="${(state.name||'').replace(/"/g,'&quot;')}"/></div>
+    ${swatchRow('Skin',SKINS.map(c=>({v:c})),'skin',av.skin)}
+    ${swatchRow('Hair',HAIRS,'hair',av.hair)}
+    ${swatchRow('Hair color',HAIRCOLS.map(c=>({v:c})),'hairColor',av.hairColor)}
+    ${swatchRow('Shirt',SHIRTS.map(c=>({v:c})),'shirt',av.shirt)}
+    <div class="center" style="margin-top:16px"><button class="big-btn" id="startBtn">${editing?'Save':"Let's grow my garden!"}</button></div></div>`);
+  const ni=document.getElementById('nameIn');if(ni)ni.oninput=()=>{state.name=ni.value;};
+  document.querySelectorAll('[data-set]').forEach(b=>b.onclick=()=>{state.avatar[b.dataset.set]=b.dataset.val;render();});
+  document.getElementById('startBtn').onclick=()=>{if(!state.name||!state.name.trim())state.name='Friend';state._greeted=false;persist();state.view='home';render();};
+}
+
+/* ---------- HOME ---------- */
+function nodeHTML(s){const lvl=state.skillLevel[s.id]||0;const badge=lvl>=2?'<span class="lvl">🌸</span>':lvl===1?'<span class="lvl">🌿</span>':'';return `<button class="node ph-${s.phase}" data-skill="${s.id}">${s.name}<small>${s.sub}</small>${badge}<span class="play"><svg width="13" height="13" viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg></span></button>`;}
+function renderHome(){const tiers={};SKILLS.forEach(s=>{(tiers[s.tier]=tiers[s.tier]||[]).push(s);});const labels=['Start here','Make & break','Operations','Helpers','Next adventures'];let tree='';Object.keys(tiers).sort().forEach(t=>{tree+=`<div class="sectlabel">${labels[t]||''}</div><div class="tier">${tiers[t].map(nodeHTML).join('')}</div>`;});
+  if(!state.comp.line)state.comp={mood:'happy',line:pick(greetLines())};
+  mount(`<div class="garden-wrap">${gardenSVG(state.flowers,state.avatar)}</div>${companionWidget()}<div class="center" style="margin-top:8px"><button class="ghost-btn" id="editBtn" style="font-size:14px">✏️ Customize buddy</button></div><div class="center" style="margin-top:12px"><h2 style="margin:4px 0;color:var(--leaf-dark);font-size:22px">Tap a skill to grow your garden</h2><p style="margin:2px 0 0;color:var(--ink-soft);font-weight:700">🌸 = bloomed · 🌿 = sprouting · your garden saves itself</p></div><div class="tree">${tree}</div>`);
+  document.querySelectorAll('.node').forEach(b=>b.onclick=()=>startLesson(b.dataset.skill));
+  document.getElementById('editBtn').onclick=()=>{stopSpeak();state.view='onboard';render();};
+  if(!state._greeted){speak(state.comp.line);state._greeted=true;}
+}
+
+/* ---------- STICKER BOOK ---------- */
+function stickerHTML(def,owned){return `<div class="stk ${owned?'on':'off'}"><div class="stk-face" style="--sc:${def.color}">${owned?def.icon:'?'}</div><div class="stk-name">${owned?def.name:'Locked'}</div></div>`;}
+function renderStickers(){const owned=Object.keys(state.stickers).length,total=allStickers().length;const grid=allStickers().map(d=>stickerHTML(d,!!state.stickers[d.id])).join('');
+  mount(`<div class="card" style="margin-top:6px"><div class="row" style="justify-content:space-between"><button class="ghost-btn" id="homeBtn">← Garden</button><h2 style="margin:0;color:var(--leaf-dark)">Sticker Book</h2><span style="width:78px"></span></div><p class="center" style="color:var(--ink-soft);font-weight:700;margin:6px 0 0">You've collected ${owned} of ${total} stickers!</p><div class="stk-grid">${grid}</div><div class="center"><button class="ghost-btn" id="resetBtn" style="margin-top:18px;font-size:13px;color:#b06">Reset all progress</button></div></div>`);
+  document.getElementById('homeBtn').onclick=()=>{state.view='home';render();};
+  document.getElementById('resetBtn').onclick=()=>{if(confirm('Reset all progress, stickers, and buddy? This cannot be undone.')){state.xp=0;state.flowers=0;state.skillLevel={};state.stickers={};state.name='';Store.clear();state.view='onboard';render();}};
+}
+
+/* ---------- LESSON ENGINE ---------- */
+function startLesson(id){stopSpeak();state.view='lesson';const L=LESSONS[id];const problems=[],seen=new Set();let g=0;while(problems.length<SESSION_LEN&&g<400){g++;const lvl=Math.floor(problems.length/2);const p=L.gen(lvl);if(!seen.has(p.sig)){seen.add(p.sig);problems.push(p);}}state.lesson={id,step:0,pIndex:0,solved:0,problems,example:L.exampleGen()};state.comp={mood:'happy',line:pick(INTRO)};render();}
+function goStep(n){state.lesson.step=n;render();}
+function reroll(){state.lesson.example=LESSONS[state.lesson.id].exampleGen();render();}
+function dots(){let d='';for(let i=0;i<TOTAL_STEPS;i++)d+=`<span class="dot ${i<state.lesson.step?'done':i===state.lesson.step?'on':''}"></span>`;return `<div class="progress-dots">${d}</div>`;}
+function lessonShell(inner){const L=LESSONS[state.lesson.id];mount(`<div class="card" style="margin-top:6px"><div class="row" style="justify-content:space-between"><button class="ghost-btn" id="homeBtn">← Garden</button><h2 style="margin:0;color:var(--leaf-dark)">${L.title}</h2><span style="width:78px"></span></div>${dots()}${inner}</div>${companionWidget()}`);const hb=document.getElementById('homeBtn');if(hb)hb.onclick=()=>{stopSpeak();state.view='home';render();};}
+function navExplore(){return `<div class="row" style="margin-top:20px"><button class="ghost-btn" id="backBtn">← Back</button><button class="ghost-btn" id="anotherBtn">🔄 Show me another</button><button class="big-btn" id="nextBtn">Let me try →</button></div>`;}
+function exploreRender(demoHtml,sayLine,wireFn){lessonShell(`<div class="stage" id="demo">${demoHtml}</div>`+navExplore());document.getElementById('backBtn').onclick=()=>goStep(0);document.getElementById('anotherBtn').onclick=()=>reroll();document.getElementById('nextBtn').onclick=()=>goStep(2);if(wireFn)wireFn();if(sayLine)speak(sayLine);}
+function renderLesson(){const L=LESSONS[state.lesson.id],st=state.lesson.step;if(st===0)return intro(L);if(st===1)return L.explore(state.lesson.example);if(st===2)return practice(L);return done(L);}
+function intro(L){state.comp={mood:'happy',line:pick(INTRO)};lessonShell(`<div class="stage"><div style="font-size:60px">${L.intro.emoji}</div><h2 style="font-size:27px;margin:0">${L.intro.head}</h2><p class="story" style="color:var(--ink-soft)">${L.intro.body}</p><button class="big-btn" id="nextBtn">Let's go!</button></div>`);speak(L.intro.say);document.getElementById('nextBtn').onclick=()=>goStep(1);}
+function award(id,list){if(!state.stickers[id]){state.stickers[id]=true;list.push(id);}}
+function done(L){const lv=state.lesson.solved>=4?2:state.lesson.solved>=2?1:0;state.skillLevel[L.id]=Math.max(state.skillLevel[L.id]||0,lv);const stage=['Seed 🌱','Sprout 🌿','Bloom 🌸'][state.skillLevel[L.id]];const newly=[];if(state.skillLevel[L.id]>=2)award('st-'+L.id,newly);if(state.flowers>=1)award('m-first',newly);if(state.flowers>=10)award('m-ten',newly);if(SKILLS.every(s=>(state.skillLevel[s.id]||0)>=2))award('m-all',newly);persist();state.comp={mood:'bloom',line:pick(BLOOMLINE)};const stkBlock=newly.length?`<div class="newstk"><div style="font-family:Fredoka;font-weight:700;color:var(--gold)">✨ New sticker${newly.length>1?'s':''}!</div><div class="row">${newly.map(id=>stickerHTML(stickerDef(id),true)).join('')}</div></div>`:'';
+  lessonShell(`<div class="stage"><div class="badge">You did it! ⭐</div><div class="garden-wrap" style="width:100%">${gardenSVG(state.flowers,state.avatar)}</div><div class="stagecount">${L.title} skill: <b>${stage}</b></div>${stkBlock}<p class="story" style="color:var(--ink-soft)">You grew <b>${state.lesson.solved}</b> flower${state.lesson.solved===1?'':'s'} this round!</p><div class="row"><button class="ghost-btn" id="againBtn">Play again</button><button class="big-btn" id="nextBtn">Back to garden</button></div></div>`);
+  speak(pick(BLOOMLINE)+" "+(newly.length?"You earned a new sticker! ":"")+L.done);
+  document.getElementById('nextBtn').onclick=()=>{stopSpeak();state.view='home';render();};document.getElementById('againBtn').onclick=()=>startLesson(L.id);}
+
+/* ---------- PRACTICE ---------- */
+function buildChoices(ans,spread){spread=spread||2;const s=new Set([ans]);let g=0;while(s.size<3&&g<60){g++;const d=ans+(Math.floor(Math.random()*(2*spread+1))-spread);if(d>0&&d!==ans)s.add(d);}let k=1;while(s.size<3){if(ans+k>0)s.add(ans+k);k++;}return[...s].sort((a,b)=>a-b);}
+function placeChoices(ans){const s=new Set([ans]);const c=[ans+1,ans-1,ans+10,ans-10,ans+2,ans-2];for(const v of c){if(s.size>=3)break;if(v>0&&v!==ans)s.add(v);}while(s.size<3)s.add(ans+s.size);return[...s].sort((a,b)=>a-b);}
+function relight(answer){const dots=[...document.querySelectorAll('#pvisual .item-dot:not(.gone)')];dots.forEach(d=>d.classList.remove('lit'));let i=0;const tick=()=>{if(i<dots.length){dots[i].classList.add('lit');speak(String(i+1));i++;setTimeout(tick,600);}else speak("So the answer is "+answer+". Try tapping it!");};setTimeout(tick,320);}
+function practice(L){const probs=state.lesson.problems,p=probs[state.lesson.pIndex];state.comp={mood:'happy',line:'You can do it!'};lessonShell(`<div class="pcount">Problem ${state.lesson.pIndex+1} of ${probs.length}</div><div class="stage"><div class="story">${p.story}</div>${p.q?`<div class="qline">${p.q}</div>`:''}<div id="pvisual" style="display:flex;justify-content:center">${p.visual}</div><div class="choices" id="choices">${p.choices.map(c=>`<button class="choice" data-v="${c}">${c}</button>`).join('')}</div><div class="feedback" id="fb"></div></div>`);speak((p.story+' '+(p.q||'')).trim());let tries=0;if(p.deal)setTimeout(p.deal,400);
+  document.querySelectorAll('.choice').forEach(btn=>{btn.onclick=()=>{const v=+btn.dataset.v,fb=document.getElementById('fb');
+    if(v===p.answer){btn.classList.add('right');fb.className='feedback good';fb.textContent='🌸 '+(p.winSay||'That\'s right!');document.querySelectorAll('.choice').forEach(b=>b.disabled=true);state.flowers++;state.xp+=(tries===0?10:5);state.lesson.solved++;persist();const c=pick(CHEER);setComp('cheer',c,false);speak(c+" "+(p.winSay||('The answer is '+p.answer)));const cont=document.createElement('button');cont.className='big-btn';cont.style.marginTop='8px';const last=state.lesson.pIndex>=probs.length-1;cont.textContent=last?'See my garden →':'Next →';cont.onclick=()=>{if(last)goStep(3);else{state.lesson.pIndex++;render();}};fb.after(cont);}
+    else{tries++;btn.classList.add('wrong');btn.disabled=true;const o=pick(OOPS);fb.className='feedback soft';fb.textContent=o;setComp('think',o,false);if(p.recount)relight(p.answer);else speak(o+" "+(p.hint||"Let's look again."));}};});}
+
+/* ---------- shared explore animations ---------- */
+function hopSeq(vals,traceId,onDone){const trace=document.getElementById(traceId);if(!trace)return;trace.innerHTML='';let i=0;const go=()=>{if(i<vals.length){trace.innerHTML+=`<div class="seqbox">${vals[i]}</div>`;speak(String(vals[i]));i++;setTimeout(go,600);}else if(onDone)onDone();};setTimeout(go,300);}
+function dealCookies(x,y,kind,size,onDone){const pile=document.getElementById('pile');const cookies=pile?[...pile.querySelectorAll('.item-dot')]:[];let i=0;const give=()=>{if(i<x){const plate=document.getElementById('plate'+(i%y));if(plate)plate.innerHTML+=objSVG(kind,false,size);if(cookies[i])cookies[i].style.opacity=.15;i++;speak("one");setTimeout(give,400);}else if(onDone)onDone();};setTimeout(give,300);}
+
+/* ============================================================
+   LESSONS
+   ============================================================ */
+const LESSONS={
+  counting:{title:'Counting',intro:{emoji:'🔢',head:"Let's count!",body:"Counting means giving each thing one number: one, two, three.",say:"Let's count! We give each thing one number."},
+    exampleGen(){return{n:rand(3,6),obj:pick(POOL)};},
+    explore(ex){const {n,obj}=ex;exploreRender(`<p class="story" style="color:var(--ink-soft)">Tap each ${OBJECTS[obj].w} to count it!</p><div class="grp" id="stars">${Array.from({length:n},(_,i)=>`<span data-i="${i}">${objSVG(obj)}</span>`).join('')}</div><div class="countnum" id="cn">0</div>`,`Tap each ${OBJECTS[obj].w} to count it!`,()=>{let c=0;const cn=document.getElementById('cn');document.querySelectorAll('#stars span').forEach(sp=>{sp.onclick=()=>{if(sp.dataset.done)return;sp.dataset.done=1;sp.querySelector('.item-dot').classList.add('lit');c++;cn.textContent=c;speak(String(c));if(c===n){cn.textContent=n+'!';speak(n+" "+OBJECTS[obj].p+"! You counted them all.");}};});});},
+    gen(lvl){const n=rand(3,6+lvl),obj=pick(POOL);return{sig:'c'+n+obj,story:`Count the ${OBJECTS[obj].p}.`,q:`How many ${OBJECTS[obj].p}?`,visual:`<div class="grp">${groupDots(n,obj)}</div>`,answer:n,choices:buildChoices(n,1),recount:true,winSay:'There are '+n};},done:"You're a great counter!"},
+
+  subitize:{title:'Subitizing',intro:{emoji:'👀',head:"See it fast!",body:"Some small amounts you can just SEE without counting — like three dots.",say:"Some small amounts you can just see, without counting!"},
+    exampleGen(){return{n:rand(2,5)};},
+    explore(ex){const {n}=ex;exploreRender(`<p class="story" style="color:var(--ink-soft)">Look — you can SEE this amount without counting:</p>${dicePattern(n)}<div class="equation"><span class="res">${n}</span></div><p class="story" style="color:var(--ink-soft)">Your eyes already know it's ${n}!</p>`,"You can see it's "+n+", without counting.");},
+    gen(lvl){const n=rand(2,Math.min(6,4+lvl));return{sig:'s'+n,story:'Look fast! How many dots?',visual:dicePattern(n),answer:n,choices:buildChoices(n,1),recount:true,winSay:'It is '+n};},done:"Quick eyes!"},
+
+  compare:{title:'Compare',intro:{emoji:'⚖️',head:"More or less?",body:"When we compare, we find which group has MORE and which has LESS.",say:"When we compare, we find which group has more, and which has less."},
+    exampleGen(){let a=rand(2,9),b=rand(2,9);while(b===a)b=rand(2,9);return{a,b,o1:pick(POOL),o2:pick(POOL)};},
+    explore(ex){const {a,b,o1,o2}=ex;exploreRender(`<p class="story" style="color:var(--ink-soft)">Which basket has MORE? Tap it!</p><div class="basket-row"><div class="basket" id="L">${groupDots(a,o1)}</div><div class="basket" id="R">${groupDots(b,o2)}</div></div><div class="feedback" id="cf"></div>`,"Which basket has more? Tap the one with more.",()=>{const cf=document.getElementById('cf');const big=a>=b?'L':'R';function judge(side){if(side===big){cf.className='feedback good';cf.textContent=`Yes! ${Math.max(a,b)} is more than ${Math.min(a,b)}.`;setComp('cheer',`Yes! ${Math.max(a,b)} is more!`,true);}else{cf.className='feedback soft';cf.textContent=`Let's count: ${a} and ${b}.`;setComp('think',`Let's count — ${Math.max(a,b)} is bigger!`,true);}}document.getElementById('L').onclick=()=>judge('L');document.getElementById('R').onclick=()=>judge('R');});},
+    gen(lvl){let a=rand(1,9),b=rand(1,9);while(b===a)b=rand(1,9);const o1=pick(POOL),o2=pick(POOL);return{sig:'cmp'+Math.min(a,b)+'-'+Math.max(a,b),story:'Which group has MORE?',visual:`<div class="basket-row"><div class="basket small">${groupDots(a,o1)}</div><div class="basket small">${groupDots(b,o2)}</div></div>`,answer:Math.max(a,b),choices:[a,b].sort((x,y)=>x-y),hint:'Count each basket, then pick the bigger number.',winSay:Math.max(a,b)+' is more'};},done:"You compared like a pro!"},
+
+  order:{title:'Ordering',intro:{emoji:'📏',head:"In order!",body:"Numbers have an order, small to big: 0, 1, 2, 3…",say:"Numbers go in order, from small to big."},
+    exampleGen(){return{start:rand(0,5)};},
+    explore(ex){const {start}=ex;const vals=[start,start+1,start+2,start+3,start+4,start+5];exploreRender(`<p class="story" style="color:var(--ink-soft)">Numbers go in order, small to big. Watch!</p><div class="seq" id="trace"></div><div class="row"><button class="big-btn alt" id="goBtn">Count up!</button></div><p class="story" id="ord2" style="color:var(--ink-soft)"></p>`,"Numbers go in order. Tap, count up!",()=>{document.getElementById('goBtn').onclick=()=>{document.getElementById('goBtn').disabled=true;hopSeq(vals,'trace',()=>{document.getElementById('ord2').textContent=`After ${start+2} comes ${start+3}.`;speak(`After ${start+2}, comes ${start+3}.`);});};});},
+    gen(lvl){const start=rand(0,8);const arr=[start,start+1,start+2,start+3];const blank=rand(1,2);const ans=arr[blank];const show=arr.map((v,i)=>i===blank?'?':v);return{sig:'o'+start+'-'+blank,story:'What number is missing?',visual:seqBoxes(show),answer:ans,choices:buildChoices(ans,1),hint:'Count in order to find the gap.',winSay:'It is '+ans};},done:"You put numbers in order!"},
+
+  compose:{title:'Make & break',intro:{emoji:'🧩',head:"Make and break numbers",body:"Big numbers are made of smaller parts. This is the secret behind adding!",say:"Numbers are made of parts. This is the secret behind adding."},
+    exampleGen(){return{whole:rand(5,9)};},
+    explore(ex){const {whole}=ex;const def=Math.floor(whole/2);exploreRender(`<p class="story" style="color:var(--ink-soft)">${whole} can be broken many ways. Try the buttons!</p><div class="splitbtns" id="sb">${Array.from({length:whole-1},(_,i)=>i+1).map(k=>`<button class="sb ${k===def?'on':''}" data-k="${k}">${k}</button>`).join('')}</div><div class="basket-row"><div class="basket small" id="pa">${groupDots(def,'apple')}</div><span class="plus">+</span><div class="basket small" id="pb">${groupDots(whole-def,'apple').replace(/--apple\)/g,'--apple-green)')}</div></div><div class="equation" id="ce">${def} + ${whole-def} = <span class="res">${whole}</span></div>`,whole+" can be made from two parts. Try them!",()=>{const show=k=>{document.getElementById('pa').innerHTML=groupDots(k,'apple');document.getElementById('pb').innerHTML=groupDots(whole-k,'apple').replace(/--apple\)/g,'--apple-green)');document.getElementById('ce').innerHTML=`${k} + ${whole-k} = <span class="res">${whole}</span>`;speak(k+" and "+(whole-k)+" make "+whole+".");};document.querySelectorAll('#sb .sb').forEach(b=>b.onclick=()=>{document.querySelectorAll('#sb .sb').forEach(x=>x.classList.remove('on'));b.classList.add('on');show(+b.dataset.k);});});},
+    gen(lvl){const w=rand(5,Math.min(10,6+lvl));const g=rand(1,w-1);const obj=pick(FRUITS);return{sig:'mk'+w+'-'+g,story:`${w} is ${g} and how many more?`,visual:partWhole(w,g,obj),answer:w-g,choices:buildChoices(w-g,1),hint:`Count up from ${g} to ${w}.`,winSay:`${g} and ${w-g} make ${w}`};},done:"You know the parts of numbers!"},
+
+  addition:{title:'Addition',intro:{emoji:'🍎➕🍎',head:"Let's add!",body:"Adding means putting things together to make MORE.",say:"Adding means putting things together to make more."},
+    exampleGen(){const a=rand(2,5);const b=rand(2,Math.min(5,10-a));return{a,b};},
+    explore(ex){const {a,b}=ex;exploreRender(`<p class="story" style="color:var(--ink-soft)">${a} red apples and ${b} green apples.</p><div class="basket-row" id="baskets"><div class="basket">${appleSVG(34).repeat(a)}</div><span class="plus">+</span><div class="basket">${appleSVG(34,true).repeat(b)}</div></div><div class="countnum" id="cn"></div><div class="equation" id="eq" style="opacity:0">${a} + ${b} = <span class="res">${a+b}</span></div><div id="afterways"></div><div class="row"><button class="big-btn alt" id="tog">Put them together!</button></div>`,`${a} red apples, and ${b} green apples. Tap, put them together!`,()=>{document.getElementById('tog').onclick=()=>{const t=document.getElementById('tog');t.disabled=true;document.getElementById('baskets').innerHTML=`<div class="basket" id="big" style="min-width:220px">${appleSVG(34).repeat(a)}${appleSVG(34,true).repeat(b)}</div>`;speak("Now let's count them all!");const ap=document.querySelectorAll('#big .apple'),cn=document.getElementById('cn');let i=0;const tick=()=>{if(i<ap.length){ap[i].classList.add('count');cn.textContent=i+1;speak(String(i+1));i++;setTimeout(tick,700);}else{cn.textContent=(a+b)+'!';document.getElementById('eq').style.opacity=1;speak((a+b)+"! "+a+" plus "+b+" equals "+(a+b)+".");document.getElementById('afterways').innerHTML=`<p class="story" style="color:var(--ink-soft);margin-top:8px">The same ${a} + ${b} = ${a+b}, four ways:</p><div class="mini-row"><div class="mini">${wayPanel('fingers',a,b)}<span>fingers</span></div><div class="mini">${wayPanel('sticks',a,b)}<span>sticks</span></div><div class="mini">${wayPanel('frame',a,b)}<span>ten-frame</span></div><div class="mini">${wayPanel('line',a,b)}<span>number line</span></div></div>`;}};setTimeout(tick,400);};});},
+    gen(lvl){const cap=8+lvl*2;let a=rand(1,Math.min(8,cap-1));let b=rand(1,Math.min(9,cap-a));const obj=pick(POOL);return{sig:'add'+a+'-'+b+obj,story:`You have ${a} ${OBJECTS[obj].p}. Then ${b} more!`,q:`How many ${OBJECTS[obj].p} now?`,visual:`<div class="items"><div class="grp">${groupDots(a,obj)}</div><span class="plus">+</span><div class="grp">${groupDots(b,obj)}</div></div>`,answer:a+b,choices:buildChoices(a+b,1),recount:true,winSay:`${a} plus ${b} is ${a+b}`};},done:"You're an adding star!"},
+
+  subtract:{title:'Subtraction',intro:{emoji:'🍪➖',head:"Take away",body:"Subtracting means taking some away and seeing how many are LEFT.",say:"Subtracting means taking some away, and seeing how many are left."},
+    exampleGen(){const a=rand(5,9);const b=rand(2,a-2);return{a,b};},
+    explore(ex){const {a,b}=ex;exploreRender(`<p class="story" style="color:var(--ink-soft)">You have ${a} apples. Let's eat ${b}!</p><div class="basket" id="sb2" style="min-width:220px">${appleSVG(34).repeat(a)}</div><div class="countnum" id="cn"></div><div class="equation" id="eq" style="opacity:0">${a} − ${b} = <span class="res">${a-b}</span></div><div class="row"><button class="big-btn alt" id="eat">Eat ${b}!</button></div>`,`You have ${a} apples. Tap, eat ${b}!`,()=>{document.getElementById('eat').onclick=()=>{const e=document.getElementById('eat');e.disabled=true;const ap=document.querySelectorAll('#sb2 .apple');let g=0;const eat=()=>{if(g<b){ap[a-1-g].classList.add('gone');g++;speak("nom");setTimeout(eat,500);}else{speak("How many are left? Let's count.");let i=0;const left=[...ap].slice(0,a-b),cn=document.getElementById('cn');const cnt=()=>{if(i<left.length){left[i].classList.add('count');cn.textContent=i+1;speak(String(i+1));i++;setTimeout(cnt,600);}else{cn.textContent=(a-b)+' left!';document.getElementById('eq').style.opacity=1;speak((a-b)+" left! "+a+" take away "+b+" equals "+(a-b)+".");}};setTimeout(cnt,500);}};setTimeout(eat,400);};});},
+    gen(lvl){const a=rand(4,Math.min(10,6+lvl));const b=rand(1,a-1);const obj=pick(POOL);return{sig:'sub'+a+'-'+b+obj,story:`You have ${a} ${OBJECTS[obj].p}. You give away ${b}.`,q:`How many ${OBJECTS[obj].p} are left?`,visual:`<div class="grp">${groupDots(a,obj,a-b)}</div>`,answer:a-b,choices:buildChoices(a-b,1),recount:true,winSay:`${a} take away ${b} is ${a-b}`};},done:"You can take away!"},
+
+  skip:{title:'Skip counting',intro:{emoji:'🐰',head:"Skip count!",body:"Instead of every number, we can jump: 2, 4, 6, 8! It gets us ready for multiplying.",say:"We can skip count by jumping. It gets us ready for multiplying."},
+    exampleGen(){return{step:[2,5,10][rand(0,2)]};},
+    explore(ex){const {step}=ex;const vals=[0,step,step*2,step*3,step*4,step*5];exploreRender(`<p class="story" style="color:var(--ink-soft)">Let's jump by ${step}s. Watch!</p><div class="seq" id="trace"></div><div class="row"><button class="big-btn alt" id="goBtn">Jump by ${step}s!</button></div>`,`Let's jump by ${step}s.`,()=>{document.getElementById('goBtn').onclick=()=>{document.getElementById('goBtn').disabled=true;hopSeq(vals,'trace');};});},
+    gen(lvl){const step=[2,5,10][rand(0,2)];const start=step*rand(1,3);const arr=[start,start+step,start+2*step,'?'];const ans=start+3*step;return{sig:'sk'+step+'-'+start,story:'Keep the pattern going!',q:'What number comes next?',visual:seqBoxes(arr),answer:ans,choices:buildChoices(ans,step),hint:`We add ${step} each jump.`,winSay:'Next is '+ans};},done:"You can skip count!"},
+
+  place:{title:'Place value',intro:{emoji:'🔟',head:"Tens and ones",body:"Ten ones make one TEN. Big numbers are tens and ones together!",say:"Ten ones make one ten."},
+    exampleGen(){return{t:rand(1,3),o:rand(1,6)};},
+    explore(ex){const {t,o}=ex;const val=t*10+o;exploreRender(`<p class="story" style="color:var(--ink-soft)">${t} ten${t>1?'s':''} and ${o} ones make ${val}:</p>${tenBlocks(t,o)}<div class="equation">${t*10} + ${o} = <span class="res">${val}</span></div><p class="story" style="color:var(--ink-soft)">Each blue rod is ten ones stuck together!</p>`,`${t} ten${t>1?'s':''}, and ${o} ones, make ${val}.`);},
+    gen(lvl){const t=rand(1,Math.min(4,2+lvl));const o=rand(0,9);const ans=t*10+o;return{sig:'pl'+t+'-'+o,story:'Count the tens, then the ones.',q:'What number is this?',visual:tenBlocks(t,o),answer:ans,choices:placeChoices(ans),hint:'Each rod is ten. Add the little ones.',winSay:'It is '+ans};},done:"You know tens and ones!"},
+
+  multiply:{title:'Multiply',intro:{emoji:'🧺🧺🧺',head:"Equal groups",body:"Multiplying is fast adding of EQUAL groups.",say:"Multiplying is fast adding of equal groups."},
+    exampleGen(){return{n:rand(2,3),m:rand(2,4),obj:pick(FRUITS)};},
+    explore(ex){const {n,m,obj}=ex;const add=Array.from({length:n},()=>m).join(' + ');exploreRender(`<p class="story" style="color:var(--ink-soft)">${n} baskets, each with ${m} ${OBJECTS[obj].p}:</p>${arrayGroups(n,m,obj)}<div class="equation" style="font-size:28px">${add} = <span class="res">${n*m}</span></div><p class="story" style="color:var(--ink-soft)">That's ${n} × ${m} = ${n*m}.</p>`,`${n} baskets, each with ${m} ${OBJECTS[obj].p}. That is ${n} times ${m}, which is ${n*m}.`);},
+    gen(lvl){const n=rand(2,Math.min(5,3+lvl));const m=rand(2,Math.min(5,3+lvl));const obj=pick(FRUITS);return{sig:'ml'+n+'-'+m+obj,story:`${n} baskets, each with ${m} ${OBJECTS[obj].p}.`,q:'How many in all?',visual:arrayGroups(n,m,obj),answer:n*m,choices:buildChoices(n*m,2),recount:true,winSay:`${n} groups of ${m} is ${n*m}`};},done:"You can multiply!"},
+
+  divide:{title:'Divide',intro:{emoji:'🍪🤝',head:"Fair shares",body:"Dividing means sharing FAIRLY, so everyone gets the same.",say:"Dividing means sharing fairly, so everyone gets the same."},
+    exampleGen(){const y=rand(2,3);const q=rand(2,3);return{y,q,x:y*q,obj:pick(SHARE)};},
+    explore(ex){const {x,y,q,obj}=ex;exploreRender(`<p class="story" style="color:var(--ink-soft)">${x} ${OBJECTS[obj].p} for ${y} friends. Share fairly!</p>${platesShare(x,y,obj,22)}<div class="row"><button class="big-btn alt" id="share">Share!</button></div><div class="equation" id="de" style="opacity:0">${x} ÷ ${y} = <span class="res">${q}</span></div>`,`${x} ${OBJECTS[obj].p}, ${y} friends. Let's share fairly.`,()=>{document.getElementById('share').onclick=()=>{document.getElementById('share').disabled=true;dealCookies(x,y,obj,22,()=>{document.getElementById('de').style.opacity=1;speak(`Everyone gets ${q}! ${x} shared by ${y} is ${q}.`);});};});},
+    gen(lvl){const y=rand(2,Math.min(4,2+lvl));const q=rand(1,Math.min(5,3+lvl));const x=y*q;const obj=pick(SHARE);return{sig:'dv'+x+'-'+y+obj,story:`Share ${x} ${OBJECTS[obj].p} with ${y} friends.`,q:'How many does each friend get?',visual:platesShare(x,y,obj,18),answer:q,choices:buildChoices(q,1),hint:'Give one to each, then go around again.',winSay:'Each gets '+q,deal:()=>dealCookies(x,y,obj,18)};},done:"You can share fairly!"},
+};
+
+/* ---------- ROUTER ---------- */
+function render(){persist();if(state.view==='onboard')return renderOnboard();if(state.view==='home')return renderHome();if(state.view==='stickers')return renderStickers();renderLesson();}
+if(window.speechSynthesis){speechSynthesis.onvoiceschanged=()=>{loadVoices();if(state.view==='home')render();};}
+window.addEventListener('load',()=>{loadSave();loadVoices();if(!state.name)state.view='onboard';render();});
+</script></body></html>
